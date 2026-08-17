@@ -3,27 +3,19 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  ADMIN
-  ORGANIZER
-  ATTENDEE
-}
-
-enum RegistrationStatus {
-  CONFIRMED
-  CANCELLED
-}
+// SQLite no soporta enums nativos en Prisma: los roles y estados se validan
+// en la app (zod / TypeScript) y se guardan como String. Ver server/src/types.ts.
 
 model User {
   id           String   @id @default(cuid())
   name         String
   email        String   @unique
   passwordHash String
-  role         Role     @default(ATTENDEE)
+  role         String   @default("ATTENDEE") // "ADMIN" | "ORGANIZER" | "ATTENDEE"
   createdAt    DateTime @default(now())
 
   eventsOrganized Event[]        @relation("EventOrganizer")
@@ -52,10 +44,10 @@ model Event {
 }
 
 model Registration {
-  id           String             @id @default(cuid())
-  qrToken      String             @unique @default(cuid())
-  status       RegistrationStatus @default(CONFIRMED)
-  registeredAt DateTime           @default(now())
+  id           String   @id @default(cuid())
+  qrToken      String   @unique @default(cuid())
+  status       String   @default("CONFIRMED") // "CONFIRMED" | "CANCELLED"
+  registeredAt DateTime @default(now())
 
   eventId String
   event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)

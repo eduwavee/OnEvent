@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import type { Role } from "@prisma/client";
+import type { Role } from "../types";
 import { HttpError } from "./error.middleware";
 
 /** Debe usarse después de requireAuth. Permite el acceso solo a los roles indicados. */
