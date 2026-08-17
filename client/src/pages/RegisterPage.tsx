@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { getErrorMessage } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import type { Role } from "../types";
@@ -7,10 +7,16 @@ import type { Role } from "../types";
 export function RegisterPage() {
   const { register } = useAuth();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  const initialRole: Role = searchParams.get("role") === "organizer" ? "ORGANIZER" : "ATTENDEE";
+
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState<Role>("ATTENDEE");
+  const [role, setRole] = useState<Role>(initialRole);
+  const [organizationName, setOrganizationName] = useState("");
+  const [organizationDescription, setOrganizationDescription] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -19,7 +25,13 @@ export function RegisterPage() {
     setError(null);
     setLoading(true);
     try {
-      await register(name, email, password, role);
+      await register({
+        name,
+        email,
+        password,
+        role,
+        ...(role === "ORGANIZER" ? { organizationName, organizationDescription } : {}),
+      });
       navigate("/");
     } catch (err) {
       setError(getErrorMessage(err));
@@ -55,9 +67,33 @@ export function RegisterPage() {
           Tipo de cuenta
           <select value={role} onChange={(e) => setRole(e.target.value as Role)}>
             <option value="ATTENDEE">Asistente — quiero inscribirme a eventos</option>
-            <option value="ORGANIZER">Organizador — quiero crear y gestionar eventos</option>
+            <option value="ORGANIZER">Organización — quiero crear y gestionar eventos</option>
           </select>
         </label>
+
+        {role === "ORGANIZER" && (
+          <>
+            <label>
+              Nombre de la organización
+              <input
+                value={organizationName}
+                onChange={(e) => setOrganizationName(e.target.value)}
+                placeholder="Ej: Comunidad DevTucumán"
+                required
+              />
+            </label>
+            <label>
+              Descripción (opcional)
+              <textarea
+                value={organizationDescription}
+                onChange={(e) => setOrganizationDescription(e.target.value)}
+                rows={2}
+                placeholder="A qué se dedica tu organización"
+              />
+            </label>
+          </>
+        )}
+
         <button type="submit" className="btn btn-primary" disabled={loading}>
           {loading ? "Creando…" : "Crear cuenta"}
         </button>

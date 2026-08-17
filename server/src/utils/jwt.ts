@@ -11,6 +11,7 @@ if (!JWT_SECRET) {
 export interface JwtPayload {
   sub: string;
   role: Role;
+  organizationId?: string | null;
 }
 
 export function signToken(payload: JwtPayload): string {

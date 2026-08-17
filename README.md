@@ -1,7 +1,8 @@
 # Sistema de Gestión de Eventos
 
-Web app full-stack para crear eventos, gestionar inscripciones con control de cupo,
-emitir tickets con QR y registrar la asistencia el día del evento (QR o lista manual).
+Web app full-stack para que **organizaciones** publiquen eventos, gestionen inscripciones
+con control de cupo, emitan tickets con QR y registren la asistencia el día del evento
+(QR o lista manual). Landing pública para explorar eventos sin necesidad de iniciar sesión.
 
 ## Stack
 
@@ -28,8 +29,9 @@ cp server/.env.example server/.env
 # 3. Crear la base de datos y las tablas (genera server/prisma/dev.db)
 npm run prisma:migrate
 
-# 4. Crear la cuenta de administrador inicial (admin@eventos.local / admin123
-#    por defecto — cambialo con ADMIN_EMAIL/ADMIN_PASSWORD en server/.env)
+# 4. Crear la cuenta de administrador inicial + datos de muestra
+#    (org. "Comunidad DevTucumán" con un organizador y un evento)
+#    admin@eventos.local / admin123 — cambialo con ADMIN_EMAIL/ADMIN_PASSWORD
 npm run prisma:seed
 
 # 5. Arrancar backend (puerto 4000) y frontend (puerto 5173) juntos
@@ -39,13 +41,22 @@ npm run dev
 Frontend: http://localhost:5173
 Backend:  http://localhost:4000/api
 
+## Modelo de datos
+
+Los eventos pertenecen a una **Organización**, no a un usuario suelto. Al registrarse
+con el rol "Organización" (`ORGANIZER`), se crea la cuenta y su organización juntas
+(nombre + descripción opcional); todo lo que esa cuenta cree queda a nombre de la
+organización, no de la persona.
+
 ## Flujo de uso
 
-1. Registrarse como usuario (rol `ORGANIZER` para poder crear eventos).
-2. Crear un evento desde el dashboard de organizador.
-3. Con otro usuario (rol `ATTENDEE`), inscribirse al evento — se genera un ticket con QR.
-4. El día del evento, el organizador entra a "Check-in" del evento y marca asistencia
-   escaneando el QR con la cámara, o manualmente desde la lista de inscritos.
+1. Desde la landing (`/`), "Registrar tu organización" crea una cuenta `ORGANIZER` +
+   su organización, o registrarse como `ATTENDEE` para solo inscribirse a eventos.
+2. Crear un evento desde "Mis eventos" (dashboard de la organización).
+3. Con una cuenta `ATTENDEE`, inscribirse al evento desde `/eventos` — se genera un
+   ticket con QR.
+4. El día del evento, alguien de la organización entra a "Check-in" del evento y marca
+   asistencia escaneando el QR con la cámara, o manualmente desde la lista de inscritos.
 5. Con la cuenta admin (creada por el seed), entrar a "Panel admin" para ver
    estadísticas globales y gestionar el rol o eliminar cualquier usuario. No
    existe un registro público de administradores por seguridad: la única forma

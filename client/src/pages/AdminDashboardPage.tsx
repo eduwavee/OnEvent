@@ -118,7 +118,8 @@ export function AdminDashboardPage() {
                 <th>Nombre</th>
                 <th>Email</th>
                 <th>Rol</th>
-                <th>Eventos / Inscripciones</th>
+                <th>Organización</th>
+                <th>Inscripciones</th>
                 <th>Desde</th>
                 <th></th>
               </tr>
@@ -149,8 +150,9 @@ export function AdminDashboardPage() {
                       )}
                     </td>
                     <td>
-                      {u._count.eventsOrganized} / {u._count.registrations}
+                      {u.organization ? `${u.organization.name} (${u.organization._count.events})` : "—"}
                     </td>
+                    <td>{u._count.registrations}</td>
                     <td>{dateFormatter.format(new Date(u.createdAt))}</td>
                     <td>
                       {!isSelf && (

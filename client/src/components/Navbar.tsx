@@ -18,7 +18,10 @@ export function Navbar() {
         Gestión de Eventos
       </NavLink>
       <nav className="navbar-links">
-        <NavLink to="/">Eventos</NavLink>
+        <NavLink to="/" end>
+          Inicio
+        </NavLink>
+        <NavLink to="/eventos">Eventos</NavLink>
         {user?.role === "ATTENDEE" && <NavLink to="/mis-inscripciones">Mis inscripciones</NavLink>}
         {(user?.role === "ORGANIZER" || user?.role === "ADMIN") && (
           <NavLink to="/organizador">Mis eventos</NavLink>
