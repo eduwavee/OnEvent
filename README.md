@@ -5,14 +5,16 @@ emitir tickets con QR y registrar la asistencia el día del evento (QR o lista m
 
 ## Stack
 
-- **Backend**: Node.js + Express + TypeScript + Prisma + PostgreSQL
+- **Backend**: Node.js + Express + TypeScript + Prisma + SQLite
 - **Frontend**: React + TypeScript + Vite
 - **Auth**: JWT + bcrypt, con roles `ADMIN` / `ORGANIZER` / `ATTENDEE`
+
+SQLite guarda la base de datos como un archivo local (`server/prisma/dev.db`),
+así que no hace falta instalar ni levantar ningún servidor de base de datos.
 
 ## Requisitos
 
 - Node.js 18+
-- Docker (para levantar PostgreSQL fácilmente) — o un PostgreSQL propio
 
 ## Puesta en marcha
 
@@ -20,16 +22,13 @@ emitir tickets con QR y registrar la asistencia el día del evento (QR o lista m
 # 1. Instalar dependencias (raíz + workspaces server/client)
 npm install
 
-# 2. Levantar la base de datos
-npm run db:up
-
-# 3. Configurar variables de entorno del backend
+# 2. Configurar variables de entorno del backend
 cp server/.env.example server/.env
 
-# 4. Crear las tablas
+# 3. Crear la base de datos y las tablas (genera server/prisma/dev.db)
 npm run prisma:migrate
 
-# 5. Arrancar backend (puerto 4000) y frontend (puerto 5173) juntos
+# 4. Arrancar backend (puerto 4000) y frontend (puerto 5173) juntos
 npm run dev
 ```
 

@@ -4,6 +4,7 @@ import { z } from "zod";
 import { prisma } from "../lib/prisma";
 import { signToken } from "../utils/jwt";
 import { HttpError } from "../middleware/error.middleware";
+import type { Role } from "../types";
 
 const SALT_ROUNDS = 10;
 
@@ -36,7 +37,7 @@ export async function register(req: Request, res: Response) {
     data: { name: data.name, email: data.email, passwordHash, role: data.role },
   });
 
-  const token = signToken({ sub: user.id, role: user.role });
+  const token = signToken({ sub: user.id, role: user.role as Role });
   res.status(201).json({ token, user: toPublicUser(user) });
 }
 
@@ -53,7 +54,7 @@ export async function login(req: Request, res: Response) {
     throw new HttpError(401, "Credenciales inválidas");
   }
 
-  const token = signToken({ sub: user.id, role: user.role });
+  const token = signToken({ sub: user.id, role: user.role as Role });
   res.json({ token, user: toPublicUser(user) });
 }
 
