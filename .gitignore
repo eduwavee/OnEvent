@@ -14,3 +14,4 @@ client/node_modules/
 server/node_modules/
 server/dist/
 client/dist/
+*.tsbuildinfo
