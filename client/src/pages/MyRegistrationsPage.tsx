@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getMyTicket, listMyRegistrations } from "../api/registrations";
 import { getErrorMessage } from "../api/client";
 import { QRTicket } from "../components/QRTicket";
+import { SkeletonBlock } from "../components/Skeleton";
 import type { Event, Registration } from "../types";
 
 interface Ticket {
@@ -34,7 +35,12 @@ export function MyRegistrationsPage() {
   return (
     <div className="page">
       <h1>Mis inscripciones</h1>
-      {loading && <p className="page-loading">Cargando…</p>}
+      {loading && (
+        <div className="ticket-list">
+          <SkeletonBlock height={140} />
+          <SkeletonBlock height={140} />
+        </div>
+      )}
       {error && <p className="form-error">{error}</p>}
       {!loading && tickets.length === 0 && (
         <p className="empty-state">Todavía no te has inscrito a ningún evento.</p>

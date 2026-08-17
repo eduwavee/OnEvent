@@ -22,9 +22,12 @@ export function EventCard({ event }: { event: Event }) {
         </span>
       </p>
       <p className="event-card-desc">{event.description}</p>
-      <p className={`event-card-spots ${spotsLeft <= 0 ? "full" : ""}`}>
-        {spotsLeft > 0 ? `${spotsLeft} cupos disponibles` : "Sin cupos"}
-      </p>
+      <div className="event-card-footer">
+        <span className="event-card-org">{event.organization.name}</span>
+        <span className={`event-card-spots ${spotsLeft <= 0 ? "full" : ""}`}>
+          {spotsLeft > 0 ? `${spotsLeft} cupos` : "Sin cupos"}
+        </span>
+      </div>
     </Link>
   );
 }

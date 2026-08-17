@@ -4,6 +4,8 @@ import { listEvents } from "../api/events";
 import { getErrorMessage } from "../api/client";
 import { EventCard } from "../components/EventCard";
 import { IconPlus } from "../components/icons";
+import { SkeletonCardGrid } from "../components/Skeleton";
+import { StaggerGrid, StaggerItem } from "../components/StaggerGrid";
 import type { Event } from "../types";
 
 export function OrganizerDashboardPage() {
@@ -26,16 +28,20 @@ export function OrganizerDashboardPage() {
           <IconPlus size={15} /> Crear evento
         </Link>
       </div>
-      {loading && <p className="page-loading">Cargando…</p>}
+      {loading && <SkeletonCardGrid />}
       {error && <p className="form-error">{error}</p>}
       {!loading && events.length === 0 && (
         <p className="empty-state">Todavía no has creado ningún evento.</p>
       )}
-      <div className="grid">
-        {events.map((event) => (
-          <EventCard key={event.id} event={event} />
-        ))}
-      </div>
+      {!loading && events.length > 0 && (
+        <StaggerGrid>
+          {events.map((event) => (
+            <StaggerItem key={event.id}>
+              <EventCard event={event} />
+            </StaggerItem>
+          ))}
+        </StaggerGrid>
+      )}
     </div>
   );
 }
