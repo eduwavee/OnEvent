@@ -124,7 +124,7 @@ a {
   display: flex;
   flex-direction: column;
   gap: 20px;
-  animation: page-in 0.4s var(--ease) both;
+  animation: page-in 0.35s var(--ease) both;
 }
 
 @keyframes page-in {
@@ -422,6 +422,32 @@ h1 {
   color: var(--danger);
 }
 
+.event-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 2px;
+}
+
+.event-card-org {
+  font-size: 0.78rem;
+  color: var(--text-faint);
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inline-link {
+  color: var(--accent);
+  font-weight: 600;
+  text-decoration: none;
+}
+.inline-link:hover {
+  text-decoration: underline;
+}
+
 .event-detail-desc {
   white-space: pre-wrap;
   color: var(--text-muted);
@@ -453,7 +479,7 @@ h1 {
   gap: 14px;
   width: 100%;
   max-width: 420px;
-  animation: page-in 0.35s var(--ease) both;
+  animation: page-in 0.3s var(--ease) both;
 }
 
 .event-form {
@@ -787,6 +813,142 @@ select:focus {
    Admin: usuarios
 --------------------------------------------------------------------- */
 
+/* ---------------------------------------------------------------------
+   Toasts
+--------------------------------------------------------------------- */
+
+.toast-stack {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: min(360px, calc(100vw - 40px));
+}
+
+.toast {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  font-size: 0.87rem;
+  font-weight: 500;
+  box-shadow: 0 8px 28px -8px rgba(0, 0, 0, 0.55);
+  border: 1px solid transparent;
+}
+
+.toast-success {
+  background: #0f2a20;
+  color: #6ee7b7;
+  border-color: color-mix(in srgb, var(--success) 35%, transparent);
+}
+
+.toast-error {
+  background: #331520;
+  color: #f9a8b4;
+  border-color: color-mix(in srgb, var(--danger) 35%, transparent);
+}
+
+.toast svg {
+  flex-shrink: 0;
+}
+
+/* ---------------------------------------------------------------------
+   Skeletons
+--------------------------------------------------------------------- */
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: calc(200px + 100%) 0;
+  }
+}
+
+.skeleton-line,
+.skeleton-block {
+  border-radius: 6px;
+  background: linear-gradient(90deg, var(--surface-raised) 25%, var(--surface-hover) 37%, var(--surface-raised) 63%);
+  background-size: 400px 100%;
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+.skeleton-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.skeleton-line-title {
+  height: 18px;
+  width: 70%;
+}
+.skeleton-line-meta {
+  height: 12px;
+  width: 50%;
+}
+.skeleton-line-body {
+  height: 12px;
+  width: 90%;
+}
+.skeleton-line-tag {
+  height: 12px;
+  width: 35%;
+  margin-top: 4px;
+}
+.skeleton-line-row {
+  height: 14px;
+  width: 100%;
+}
+
+.skeleton-block {
+  width: 100%;
+  border-radius: var(--radius);
+}
+
+/* ---------------------------------------------------------------------
+   Perfil de organización
+--------------------------------------------------------------------- */
+
+.org-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  padding: 24px;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid var(--border);
+}
+
+.org-header-icon {
+  width: 56px;
+  height: 56px;
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  background: var(--accent-soft);
+  border: 1px solid var(--accent-soft-border);
+  color: var(--accent-hover);
+}
+
+.org-header-desc {
+  color: var(--text-muted);
+  margin: 6px 0 10px;
+  max-width: 60ch;
+  line-height: 1.55;
+}
+
+.org-events-heading {
+  font-size: 1.15rem;
+  margin-top: 8px;
+}
+
 .role-select {
   padding: 5px 8px;
   font-size: 0.8rem;
@@ -814,7 +976,7 @@ select:focus {
   align-items: flex-start;
   gap: 18px;
   padding: 56px 4px 8px;
-  animation: page-in 0.5s var(--ease) both;
+  position: relative;
 }
 
 .eyebrow {
@@ -849,6 +1011,62 @@ select:focus {
   display: flex;
   gap: 12px;
   margin-top: 6px;
+}
+
+.landing-glow {
+  position: absolute;
+  top: -120px;
+  left: -160px;
+  width: 520px;
+  height: 420px;
+  background: radial-gradient(circle, rgba(61, 124, 255, 0.28), transparent 70%);
+  filter: blur(10px);
+  pointer-events: none;
+  z-index: -1;
+  animation: glow-drift 10s ease-in-out infinite alternate;
+}
+
+@keyframes glow-drift {
+  from {
+    transform: translate(0, 0) scale(1);
+  }
+  to {
+    transform: translate(40px, 30px) scale(1.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landing-glow {
+    animation: none;
+  }
+}
+
+.landing-stats {
+  display: flex;
+  gap: 36px;
+  margin-top: 20px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  width: 100%;
+}
+
+.landing-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.landing-stat-value {
+  font-family: var(--font-mono);
+  font-size: 1.7rem;
+  font-weight: 500;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.landing-stat-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
 }
 
 .landing-section {
@@ -932,4 +1150,65 @@ select:focus {
   display: flex;
   gap: 12px;
   margin-top: 6px;
+}
+
+/* ---------------------------------------------------------------------
+   Responsive (mobile)
+--------------------------------------------------------------------- */
+
+@media (max-width: 720px) {
+  .navbar {
+    flex-wrap: wrap;
+    row-gap: 10px;
+    padding: 12px 16px;
+  }
+
+  .navbar-links {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    gap: 16px;
+    flex: none;
+  }
+
+  .navbar-username {
+    display: none;
+  }
+
+  .app-main {
+    padding: 20px 16px 56px;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .qr-ticket {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .qr-ticket-img {
+    align-self: center;
+  }
+
+  .landing-hero h1 {
+    font-size: clamp(1.8rem, 8vw, 2.4rem);
+  }
+
+  .landing-stats {
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+
+  .org-header {
+    flex-direction: column;
+  }
+
+  .toast-stack {
+    left: 16px;
+    right: 16px;
+    max-width: none;
+  }
 }

@@ -1,13 +1,17 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { checkIn, getAttendanceStats, type AttendanceStats } from "../api/attendance";
 import { getEvent } from "../api/events";
 import { listEventRegistrations } from "../api/registrations";
 import { getErrorMessage } from "../api/client";
 import { AttendeeList } from "../components/AttendeeList";
-import { QRScanner } from "../components/QRScanner";
 import { IconCheckCircle, IconList, IconScan } from "../components/icons";
+import { SkeletonBlock } from "../components/Skeleton";
 import type { Event, Registration } from "../types";
+
+// html5-qrcode es pesado (~200KB); solo se carga si se abre la pestaña de escaneo.
+const QRScanner = lazy(() => import("../components/QRScanner").then((m) => ({ default: m.QRScanner })));
 
 export function CheckInPage() {
   const { id } = useParams<{ id: string }>();
@@ -16,8 +20,9 @@ export function CheckInPage() {
   const [stats, setStats] = useState<AttendanceStats | null>(null);
   const [mode, setMode] = useState<"manual" | "qr">("manual");
   const [checkingInId, setCheckingInId] = useState<string | null>(null);
-  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [message, setMessage] = useState<{ id: number; type: "success" | "error"; text: string } | null>(null);
   const lastScan = useRef<{ token: string; at: number } | null>(null);
+  const messageId = useRef(0);
 
   const load = useCallback(async () => {
     if (!id) return;
@@ -32,25 +37,32 @@ export function CheckInPage() {
   }, [id]);
 
   useEffect(() => {
-    load().catch((err) => setMessage({ type: "error", text: getErrorMessage(err) }));
+    load().catch((err) => setMessage({ id: ++messageId.current, type: "error", text: getErrorMessage(err) }));
   }, [load]);
 
   async function handleCheckIn(payload: { registrationId?: string; qrToken?: string }) {
     if (!id) return;
-    setMessage(null);
     if (payload.registrationId) setCheckingInId(payload.registrationId);
     try {
       const result = await checkIn(id, payload);
-      setMessage({ type: "success", text: `Asistencia registrada: ${result.attendee.name}` });
+      setMessage({ id: ++messageId.current, type: "success", text: `Asistencia registrada: ${result.attendee.name}` });
       await load();
     } catch (err) {
-      setMessage({ type: "error", text: getErrorMessage(err) });
+      setMessage({ id: ++messageId.current, type: "error", text: getErrorMessage(err) });
     } finally {
       setCheckingInId(null);
     }
   }
 
-  if (!event) return <p className="page-loading">Cargando…</p>;
+  if (!event) {
+    return (
+      <div className="page">
+        <SkeletonBlock height={38} />
+        <SkeletonBlock height={80} />
+        <SkeletonBlock height={200} />
+      </div>
+    );
+  }
 
   return (
     <div className="page">
@@ -63,9 +75,10 @@ export function CheckInPage() {
               {stats.attended} <small>/ {stats.registered} inscritos</small>
             </span>
             <div className="stat-tile-bar">
-              <div
+              <motion.div
                 className="stat-tile-bar-fill"
-                style={{ width: `${stats.registered ? (stats.attended / stats.registered) * 100 : 0}%` }}
+                animate={{ width: `${stats.registered ? (stats.attended / stats.registered) * 100 : 0}%` }}
+                transition={{ duration: 0.5, ease: [0.2, 0.7, 0.2, 1] }}
               />
             </div>
           </div>
@@ -75,9 +88,10 @@ export function CheckInPage() {
               {stats.registered} <small>/ {stats.capacity} cupos</small>
             </span>
             <div className="stat-tile-bar">
-              <div
+              <motion.div
                 className="stat-tile-bar-fill"
-                style={{ width: `${stats.capacity ? (stats.registered / stats.capacity) * 100 : 0}%` }}
+                animate={{ width: `${stats.capacity ? (stats.registered / stats.capacity) * 100 : 0}%` }}
+                transition={{ duration: 0.5, ease: [0.2, 0.7, 0.2, 1] }}
               />
             </div>
           </div>
@@ -93,12 +107,21 @@ export function CheckInPage() {
         </button>
       </div>
 
-      {message && (
-        <p className={message.type === "success" ? "form-success" : "form-error"}>
-          {message.type === "success" && <IconCheckCircle size={15} />}
-          {message.text}
-        </p>
-      )}
+      <AnimatePresence mode="wait">
+        {message && (
+          <motion.p
+            key={message.id}
+            initial={{ opacity: 0, scale: 0.97, y: -4 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.97 }}
+            transition={{ duration: 0.2 }}
+            className={message.type === "success" ? "form-success" : "form-error"}
+          >
+            {message.type === "success" && <IconCheckCircle size={15} />}
+            {message.text}
+          </motion.p>
+        )}
+      </AnimatePresence>
 
       {mode === "manual" ? (
         <AttendeeList
@@ -108,15 +131,17 @@ export function CheckInPage() {
         />
       ) : (
         <div className="card">
-          <QRScanner
-            onScan={(qrToken) => {
-              // Evita reintentar el mismo QR repetidamente mientras sigue frente a la cámara.
-              const now = Date.now();
-              if (lastScan.current?.token === qrToken && now - lastScan.current.at < 4000) return;
-              lastScan.current = { token: qrToken, at: now };
-              handleCheckIn({ qrToken });
-            }}
-          />
+          <Suspense fallback={<SkeletonBlock height={280} />}>
+            <QRScanner
+              onScan={(qrToken) => {
+                // Evita reintentar el mismo QR repetidamente mientras sigue frente a la cámara.
+                const now = Date.now();
+                if (lastScan.current?.token === qrToken && now - lastScan.current.at < 4000) return;
+                lastScan.current = { token: qrToken, at: now };
+                handleCheckIn({ qrToken });
+              }}
+            />
+          </Suspense>
         </div>
       )}
     </div>

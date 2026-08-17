@@ -8,6 +8,7 @@ import { EventsListPage } from "./pages/EventsListPage";
 import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { MyRegistrationsPage } from "./pages/MyRegistrationsPage";
+import { OrganizationPage } from "./pages/OrganizationPage";
 import { OrganizerDashboardPage } from "./pages/OrganizerDashboardPage";
 import { RegisterPage } from "./pages/RegisterPage";
 
@@ -19,6 +20,7 @@ export function AppRouter() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/registro" element={<RegisterPage />} />
       <Route path="/eventos/:id" element={<EventDetailPage />} />
+      <Route path="/organizaciones/:id" element={<OrganizationPage />} />
 
       <Route
         path="/mis-inscripciones"

@@ -5,14 +5,17 @@ import { deleteEvent, getEvent } from "../api/events";
 import { cancelMyRegistration, getMyTicket, registerToEvent } from "../api/registrations";
 import { getErrorMessage } from "../api/client";
 import { useAuth } from "../context/AuthContext";
+import { useToast } from "../context/ToastContext";
 import type { Event, Registration } from "../types";
 import { IconCalendar, IconEdit, IconPin, IconScan, IconTrash } from "../components/icons";
+import { SkeletonBlock } from "../components/Skeleton";
 
 const dateFormatter = new Intl.DateTimeFormat("es-ES", { dateStyle: "full", timeStyle: "short" });
 
 export function EventDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
+  const toast = useToast();
   const navigate = useNavigate();
 
   const [event, setEvent] = useState<Event | null>(null);
@@ -54,9 +57,10 @@ export function EventDetailPage() {
     setError(null);
     try {
       await registerToEvent(id);
+      toast.success("Te inscribiste correctamente. Ya tenés tu ticket con QR.");
       await load();
     } catch (err) {
-      setError(getErrorMessage(err));
+      toast.error(getErrorMessage(err));
     } finally {
       setActionLoading(false);
     }
@@ -68,9 +72,10 @@ export function EventDetailPage() {
     setError(null);
     try {
       await cancelMyRegistration(id);
+      toast.success("Inscripción cancelada.");
       await load();
     } catch (err) {
-      setError(getErrorMessage(err));
+      toast.error(getErrorMessage(err));
     } finally {
       setActionLoading(false);
     }
@@ -82,14 +87,23 @@ export function EventDetailPage() {
     setActionLoading(true);
     try {
       await deleteEvent(id);
+      toast.success("Evento eliminado.");
       navigate("/organizador");
     } catch (err) {
-      setError(getErrorMessage(err));
+      toast.error(getErrorMessage(err));
       setActionLoading(false);
     }
   }
 
-  if (loading) return <p className="page-loading">Cargando evento…</p>;
+  if (loading) {
+    return (
+      <div className="page">
+        <SkeletonBlock height={38} />
+        <SkeletonBlock height={20} />
+        <SkeletonBlock height={90} />
+      </div>
+    );
+  }
   if (!event) return <p className="form-error">{error || "Evento no encontrado"}</p>;
 
   const isOwner = user && (user.organizationId === event.organizationId || user.role === "ADMIN");
@@ -107,7 +121,12 @@ export function EventDetailPage() {
           {dateFormatter.format(new Date(event.endDate))}
         </span>
       </p>
-      <p>Organiza: {event.organization.name}</p>
+      <p>
+        Organiza:{" "}
+        <Link to={`/organizaciones/${event.organization.id}`} className="inline-link">
+          {event.organization.name}
+        </Link>
+      </p>
       <p className="event-detail-desc">{event.description}</p>
       <p className={spotsLeft <= 0 ? "event-card-spots full" : "event-card-spots"}>
         {spotsLeft > 0 ? `${spotsLeft} cupos disponibles de ${event.capacity}` : "Sin cupos disponibles"}

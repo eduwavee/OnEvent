@@ -1,8 +1,15 @@
+import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { listEvents } from "../api/events";
+import { getPublicStats, type PublicStats } from "../api/stats";
+import { AnimatedCounter } from "../components/AnimatedCounter";
 import { EventCard } from "../components/EventCard";
 import { IconCalendar, IconScan, IconShield, IconUsers } from "../components/icons";
+import { ScrollReveal } from "../components/ScrollReveal";
+import { SkeletonCardGrid } from "../components/Skeleton";
+import { StaggerGrid, StaggerItem } from "../components/StaggerGrid";
+import { fadeInUp, staggerContainer } from "../lib/motion";
 import type { Event } from "../types";
 
 const BENEFITS = [
@@ -26,58 +33,92 @@ const BENEFITS = [
 export function LandingPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
+  const [stats, setStats] = useState<PublicStats | null>(null);
 
   useEffect(() => {
     listEvents()
       .then((all) => setEvents(all.slice(0, 4)))
       .finally(() => setLoading(false));
+    getPublicStats()
+      .then(setStats)
+      .catch(() => setStats(null));
   }, []);
 
   return (
     <div className="landing">
-      <section className="landing-hero">
-        <span className="eyebrow">Gestión de eventos</span>
-        <h1>
+      <motion.section className="landing-hero" variants={staggerContainer} initial="hidden" animate="show">
+        <div className="landing-glow" aria-hidden="true" />
+        <motion.span className="eyebrow" variants={fadeInUp}>
+          Gestión de eventos
+        </motion.span>
+        <motion.h1 variants={fadeInUp}>
           Organizá eventos.
           <br />
           Controlá quién entra.
-        </h1>
-        <p className="landing-hero-sub">
+        </motion.h1>
+        <motion.p className="landing-hero-sub" variants={fadeInUp}>
           Inscripciones con cupo, tickets con QR y check-in en la puerta — todo en un solo lugar,
           para tu organización y tus asistentes.
-        </p>
-        <div className="landing-hero-actions">
+        </motion.p>
+        <motion.div className="landing-hero-actions" variants={fadeInUp}>
           <Link to="/eventos" className="btn btn-primary">
             Ver eventos
           </Link>
           <Link to="/registro?role=organizer" className="btn btn-ghost">
             Registrar tu organización
           </Link>
-        </div>
-      </section>
+        </motion.div>
+
+        {stats && (
+          <motion.div className="landing-stats" variants={fadeInUp}>
+            <div className="landing-stat">
+              <span className="landing-stat-value">
+                <AnimatedCounter value={stats.organizations} />
+              </span>
+              <span className="landing-stat-label">Organizaciones</span>
+            </div>
+            <div className="landing-stat">
+              <span className="landing-stat-value">
+                <AnimatedCounter value={stats.events} />
+              </span>
+              <span className="landing-stat-label">Eventos publicados</span>
+            </div>
+            <div className="landing-stat">
+              <span className="landing-stat-value">
+                <AnimatedCounter value={stats.attendance} />
+              </span>
+              <span className="landing-stat-label">Check-ins realizados</span>
+            </div>
+          </motion.div>
+        )}
+      </motion.section>
 
       <section className="landing-section">
-        <div className="landing-section-header">
+        <ScrollReveal className="landing-section-header">
           <h2>Próximos eventos</h2>
           <Link to="/eventos" className="landing-see-all">
             Ver todos →
           </Link>
-        </div>
+        </ScrollReveal>
 
-        {loading && <p className="page-loading">Cargando…</p>}
+        {loading && <SkeletonCardGrid count={4} />}
         {!loading && events.length === 0 && (
           <p className="empty-state">
             <IconCalendar size={14} /> Todavía no hay eventos publicados. ¡Sé la primera organización en crear uno!
           </p>
         )}
-        <div className="grid">
-          {events.map((event) => (
-            <EventCard key={event.id} event={event} />
-          ))}
-        </div>
+        {!loading && events.length > 0 && (
+          <StaggerGrid>
+            {events.map((event) => (
+              <StaggerItem key={event.id}>
+                <EventCard event={event} />
+              </StaggerItem>
+            ))}
+          </StaggerGrid>
+        )}
       </section>
 
-      <section className="landing-section landing-cta">
+      <ScrollReveal className="landing-section landing-cta">
         <div className="landing-section-header">
           <h2>¿Tu organización hace eventos?</h2>
           <p className="landing-cta-sub">
@@ -85,17 +126,23 @@ export function LandingPage() {
           </p>
         </div>
 
-        <div className="benefit-grid">
+        <motion.div
+          className="benefit-grid"
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-60px" }}
+        >
           {BENEFITS.map(({ icon: Icon, title, text }) => (
-            <div className="card benefit-tile" key={title}>
+            <motion.div className="card benefit-tile" key={title} variants={fadeInUp}>
               <div className="benefit-icon">
                 <Icon size={20} />
               </div>
               <h3>{title}</h3>
               <p>{text}</p>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
 
         <div className="landing-cta-actions">
           <Link to="/registro?role=organizer" className="btn btn-primary">
@@ -105,7 +152,7 @@ export function LandingPage() {
             Ya tengo cuenta
           </Link>
         </div>
-      </section>
+      </ScrollReveal>
     </div>
   );
 }
