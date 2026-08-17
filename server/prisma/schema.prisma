@@ -1,0 +1,83 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  ORGANIZER
+  ATTENDEE
+}
+
+enum RegistrationStatus {
+  CONFIRMED
+  CANCELLED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  email        String   @unique
+  passwordHash String
+  role         Role     @default(ATTENDEE)
+  createdAt    DateTime @default(now())
+
+  eventsOrganized Event[]        @relation("EventOrganizer")
+  registrations   Registration[]
+  checkInsMade    Attendance[]   @relation("CheckedInBy")
+
+  @@map("users")
+}
+
+model Event {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  location    String
+  startDate   DateTime
+  endDate     DateTime
+  capacity    Int
+  createdAt   DateTime @default(now())
+
+  organizerId String
+  organizer   User   @relation("EventOrganizer", fields: [organizerId], references: [id], onDelete: Cascade)
+
+  registrations Registration[]
+
+  @@map("events")
+}
+
+model Registration {
+  id           String             @id @default(cuid())
+  qrToken      String             @unique @default(cuid())
+  status       RegistrationStatus @default(CONFIRMED)
+  registeredAt DateTime           @default(now())
+
+  eventId String
+  event   Event  @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  attendance Attendance?
+
+  @@unique([eventId, userId])
+  @@map("registrations")
+}
+
+model Attendance {
+  id          String   @id @default(cuid())
+  checkedInAt DateTime @default(now())
+
+  registrationId String       @unique
+  registration   Registration @relation(fields: [registrationId], references: [id], onDelete: Cascade)
+
+  checkedById String
+  checkedBy   User   @relation("CheckedInBy", fields: [checkedById], references: [id])
+
+  @@map("attendance")
+}
