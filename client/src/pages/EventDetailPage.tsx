@@ -6,6 +6,7 @@ import { cancelMyRegistration, getMyTicket, registerToEvent } from "../api/regis
 import { getErrorMessage } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import type { Event, Registration } from "../types";
+import { IconCalendar, IconEdit, IconPin, IconScan, IconTrash } from "../components/icons";
 
 const dateFormatter = new Intl.DateTimeFormat("es-ES", { dateStyle: "full", timeStyle: "short" });
 
@@ -97,9 +98,14 @@ export function EventDetailPage() {
   return (
     <div className="page event-detail">
       <h1>{event.title}</h1>
-      <p className="event-card-meta">
-        📍 {event.location} · 🗓️ {dateFormatter.format(new Date(event.startDate))} →{" "}
-        {dateFormatter.format(new Date(event.endDate))}
+      <p className="meta-row">
+        <span className="meta-item">
+          <IconPin size={14} /> {event.location}
+        </span>
+        <span className="meta-item">
+          <IconCalendar size={14} /> {dateFormatter.format(new Date(event.startDate))} →{" "}
+          {dateFormatter.format(new Date(event.endDate))}
+        </span>
       </p>
       <p>Organiza: {event.organizer.name}</p>
       <p className="event-detail-desc">{event.description}</p>
@@ -130,13 +136,13 @@ export function EventDetailPage() {
         {isOwner && (
           <>
             <Link to={`/eventos/${event.id}/editar`} className="btn btn-ghost">
-              Editar
+              <IconEdit size={15} /> Editar
             </Link>
             <Link to={`/eventos/${event.id}/check-in`} className="btn btn-primary">
-              Check-in de asistencia
+              <IconScan size={15} /> Check-in de asistencia
             </Link>
             <button className="btn btn-danger" disabled={actionLoading} onClick={handleDelete}>
-              Eliminar evento
+              <IconTrash size={15} /> Eliminar evento
             </button>
           </>
         )}

@@ -6,6 +6,7 @@ import { listEventRegistrations } from "../api/registrations";
 import { getErrorMessage } from "../api/client";
 import { AttendeeList } from "../components/AttendeeList";
 import { QRScanner } from "../components/QRScanner";
+import { IconCheckCircle, IconList, IconScan } from "../components/icons";
 import type { Event, Registration } from "../types";
 
 export function CheckInPage() {
@@ -40,7 +41,7 @@ export function CheckInPage() {
     if (payload.registrationId) setCheckingInId(payload.registrationId);
     try {
       const result = await checkIn(id, payload);
-      setMessage({ type: "success", text: `✅ Asistencia registrada: ${result.attendee.name}` });
+      setMessage({ type: "success", text: `Asistencia registrada: ${result.attendee.name}` });
       await load();
     } catch (err) {
       setMessage({ type: "error", text: getErrorMessage(err) });
@@ -55,21 +56,49 @@ export function CheckInPage() {
     <div className="page">
       <h1>Check-in: {event.title}</h1>
       {stats && (
-        <p className="event-card-meta">
-          {stats.attended} de {stats.registered} inscritos ya registraron asistencia (capacidad: {stats.capacity})
-        </p>
+        <div className="stat-grid">
+          <div className="card stat-tile">
+            <span className="stat-tile-label">Asistieron</span>
+            <span className="stat-tile-value">
+              {stats.attended} <small>/ {stats.registered} inscritos</small>
+            </span>
+            <div className="stat-tile-bar">
+              <div
+                className="stat-tile-bar-fill"
+                style={{ width: `${stats.registered ? (stats.attended / stats.registered) * 100 : 0}%` }}
+              />
+            </div>
+          </div>
+          <div className="card stat-tile">
+            <span className="stat-tile-label">Capacidad ocupada</span>
+            <span className="stat-tile-value">
+              {stats.registered} <small>/ {stats.capacity} cupos</small>
+            </span>
+            <div className="stat-tile-bar">
+              <div
+                className="stat-tile-bar-fill"
+                style={{ width: `${stats.capacity ? (stats.registered / stats.capacity) * 100 : 0}%` }}
+              />
+            </div>
+          </div>
+        </div>
       )}
 
       <div className="tabs">
         <button className={`tab ${mode === "manual" ? "active" : ""}`} onClick={() => setMode("manual")}>
-          Lista manual
+          <IconList size={15} /> Lista manual
         </button>
         <button className={`tab ${mode === "qr" ? "active" : ""}`} onClick={() => setMode("qr")}>
-          Escanear QR
+          <IconScan size={15} /> Escanear QR
         </button>
       </div>
 
-      {message && <p className={message.type === "success" ? "form-success" : "form-error"}>{message.text}</p>}
+      {message && (
+        <p className={message.type === "success" ? "form-success" : "form-error"}>
+          {message.type === "success" && <IconCheckCircle size={15} />}
+          {message.text}
+        </p>
+      )}
 
       {mode === "manual" ? (
         <AttendeeList
