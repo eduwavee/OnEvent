@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { listEvents } from "../api/events";
 import { getErrorMessage } from "../api/client";
 import { EventCard } from "../components/EventCard";
+import { IconPlus } from "../components/icons";
 import type { Event } from "../types";
 
 export function OrganizerDashboardPage() {
@@ -22,7 +23,7 @@ export function OrganizerDashboardPage() {
       <div className="page-header">
         <h1>Mis eventos</h1>
         <Link to="/eventos/nuevo" className="btn btn-primary">
-          + Crear evento
+          <IconPlus size={15} /> Crear evento
         </Link>
       </div>
       {loading && <p className="page-loading">Cargando…</p>}

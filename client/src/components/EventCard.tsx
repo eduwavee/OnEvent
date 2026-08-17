@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import type { Event } from "../types";
+import { IconCalendar, IconPin } from "./icons";
 
 const dateFormatter = new Intl.DateTimeFormat("es-ES", {
   dateStyle: "medium",
@@ -12,8 +13,13 @@ export function EventCard({ event }: { event: Event }) {
   return (
     <Link to={`/eventos/${event.id}`} className="card event-card">
       <h3>{event.title}</h3>
-      <p className="event-card-meta">
-        📍 {event.location} · 🗓️ {dateFormatter.format(new Date(event.startDate))}
+      <p className="meta-row">
+        <span className="meta-item">
+          <IconPin size={14} /> {event.location}
+        </span>
+        <span className="meta-item">
+          <IconCalendar size={14} /> {dateFormatter.format(new Date(event.startDate))}
+        </span>
       </p>
       <p className="event-card-desc">{event.description}</p>
       <p className={`event-card-spots ${spotsLeft <= 0 ? "full" : ""}`}>

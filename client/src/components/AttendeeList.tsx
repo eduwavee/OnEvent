@@ -1,4 +1,5 @@
 import type { Registration } from "../types";
+import { IconCheckCircle } from "./icons";
 
 interface Props {
   registrations: Registration[];
@@ -12,41 +13,45 @@ export function AttendeeList({ registrations, onCheckIn, checkingInId }: Props) 
   }
 
   return (
-    <table className="table">
-      <thead>
-        <tr>
-          <th>Nombre</th>
-          <th>Email</th>
-          <th>Estado</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        {registrations.map((r) => (
-          <tr key={r.id}>
-            <td>{r.user?.name}</td>
-            <td>{r.user?.email}</td>
-            <td>
-              {r.attendance ? (
-                <span className="badge badge-success">✅ Asistió</span>
-              ) : (
-                <span className="badge badge-pending">Pendiente</span>
-              )}
-            </td>
-            <td>
-              {!r.attendance && (
-                <button
-                  className="btn btn-primary btn-sm"
-                  disabled={checkingInId === r.id}
-                  onClick={() => onCheckIn(r.id)}
-                >
-                  {checkingInId === r.id ? "Marcando…" : "Marcar asistencia"}
-                </button>
-              )}
-            </td>
+    <div className="table-wrap">
+      <table className="table">
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Email</th>
+            <th>Estado</th>
+            <th></th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {registrations.map((r) => (
+            <tr key={r.id}>
+              <td>{r.user?.name}</td>
+              <td>{r.user?.email}</td>
+              <td>
+                {r.attendance ? (
+                  <span className="badge badge-success">
+                    <IconCheckCircle size={13} /> Asistió
+                  </span>
+                ) : (
+                  <span className="badge badge-pending">Pendiente</span>
+                )}
+              </td>
+              <td>
+                {!r.attendance && (
+                  <button
+                    className="btn btn-primary btn-sm"
+                    disabled={checkingInId === r.id}
+                    onClick={() => onCheckIn(r.id)}
+                  >
+                    {checkingInId === r.id ? "Marcando…" : "Marcar asistencia"}
+                  </button>
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
   );
 }
