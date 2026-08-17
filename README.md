@@ -28,7 +28,11 @@ cp server/.env.example server/.env
 # 3. Crear la base de datos y las tablas (genera server/prisma/dev.db)
 npm run prisma:migrate
 
-# 4. Arrancar backend (puerto 4000) y frontend (puerto 5173) juntos
+# 4. Crear la cuenta de administrador inicial (admin@eventos.local / admin123
+#    por defecto — cambialo con ADMIN_EMAIL/ADMIN_PASSWORD en server/.env)
+npm run prisma:seed
+
+# 5. Arrancar backend (puerto 4000) y frontend (puerto 5173) juntos
 npm run dev
 ```
 
@@ -42,6 +46,10 @@ Backend:  http://localhost:4000/api
 3. Con otro usuario (rol `ATTENDEE`), inscribirse al evento — se genera un ticket con QR.
 4. El día del evento, el organizador entra a "Check-in" del evento y marca asistencia
    escaneando el QR con la cámara, o manualmente desde la lista de inscritos.
+5. Con la cuenta admin (creada por el seed), entrar a "Panel admin" para ver
+   estadísticas globales y gestionar el rol o eliminar cualquier usuario. No
+   existe un registro público de administradores por seguridad: la única forma
+   de crear uno es el seed, o que otro admin ascienda a un usuario existente.
 
 ## Estructura
 

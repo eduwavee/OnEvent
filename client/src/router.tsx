@@ -1,5 +1,6 @@
 import { Route, Routes } from "react-router-dom";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { AdminDashboardPage } from "./pages/AdminDashboardPage";
 import { CheckInPage } from "./pages/CheckInPage";
 import { EventDetailPage } from "./pages/EventDetailPage";
 import { EventFormPage } from "./pages/EventFormPage";
@@ -55,6 +56,14 @@ export function AppRouter() {
         element={
           <ProtectedRoute roles={["ORGANIZER", "ADMIN"]}>
             <CheckInPage />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute roles={["ADMIN"]}>
+            <AdminDashboardPage />
           </ProtectedRoute>
         }
       />
