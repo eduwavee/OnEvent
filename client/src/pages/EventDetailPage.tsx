@@ -92,7 +92,7 @@ export function EventDetailPage() {
   if (loading) return <p className="page-loading">Cargando evento…</p>;
   if (!event) return <p className="form-error">{error || "Evento no encontrado"}</p>;
 
-  const isOwner = user && (user.id === event.organizerId || user.role === "ADMIN");
+  const isOwner = user && (user.organizationId === event.organizationId || user.role === "ADMIN");
   const spotsLeft = event.capacity - event._count.registrations;
 
   return (
@@ -107,7 +107,7 @@ export function EventDetailPage() {
           {dateFormatter.format(new Date(event.endDate))}
         </span>
       </p>
-      <p>Organiza: {event.organizer.name}</p>
+      <p>Organiza: {event.organization.name}</p>
       <p className="event-detail-desc">{event.description}</p>
       <p className={spotsLeft <= 0 ? "event-card-spots full" : "event-card-spots"}>
         {spotsLeft > 0 ? `${spotsLeft} cupos disponibles de ${event.capacity}` : "Sin cupos disponibles"}

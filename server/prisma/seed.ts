@@ -25,6 +25,53 @@ async function main() {
   if (!process.env.ADMIN_PASSWORD) {
     console.log(`  Contraseña por defecto: "${password}" — cámbiala en producción (ADMIN_PASSWORD en .env).`);
   }
+
+  // Organización + organizador + evento de muestra, para que la landing
+  // pública y el listado no arranquen vacíos en un ambiente recién creado.
+  const demoOrgName = "Comunidad DevTucumán";
+  let organization = await prisma.organization.findFirst({ where: { name: demoOrgName } });
+  if (!organization) {
+    organization = await prisma.organization.create({
+      data: { name: demoOrgName, description: "Meetups y talleres de tecnología en Tucumán." },
+    });
+  }
+
+  const organizerEmail = "organizador@eventos.local";
+  const organizer = await prisma.user.upsert({
+    where: { email: organizerEmail },
+    update: { organizationId: organization.id, role: "ORGANIZER" },
+    create: {
+      name: "Organizador Demo",
+      email: organizerEmail,
+      passwordHash: await bcrypt.hash("organizador123", 10),
+      role: "ORGANIZER",
+      organizationId: organization.id,
+    },
+  });
+  console.log(`✔ Organización lista: "${organization.name}" (organizador: ${organizer.email} / "organizador123")`);
+
+  const demoEventTitle = "Meetup de TypeScript";
+  const existingEvent = await prisma.event.findFirst({ where: { title: demoEventTitle, organizationId: organization.id } });
+  if (!existingEvent) {
+    const startDate = new Date();
+    startDate.setDate(startDate.getDate() + 14);
+    startDate.setHours(18, 30, 0, 0);
+    const endDate = new Date(startDate);
+    endDate.setHours(21, 0, 0, 0);
+
+    await prisma.event.create({
+      data: {
+        title: demoEventTitle,
+        description: "Charlas sobre TypeScript avanzado, tipos condicionales y patrones reales de producción.",
+        location: "Auditorio Central, San Miguel de Tucumán",
+        startDate,
+        endDate,
+        capacity: 60,
+        organizationId: organization.id,
+      },
+    });
+    console.log(`✔ Evento de muestra creado: "${demoEventTitle}"`);
+  }
 }
 
 main()

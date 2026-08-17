@@ -7,18 +7,21 @@ const roleUpdateSchema = z.object({
   role: z.enum(["ADMIN", "ORGANIZER", "ATTENDEE"]),
 });
 
+const userAdminSelect = {
+  id: true,
+  name: true,
+  email: true,
+  role: true,
+  createdAt: true,
+  organization: { select: { id: true, name: true, _count: { select: { events: true } } } },
+  _count: { select: { registrations: true } },
+} as const;
+
 /** GET /api/admin/users — lista todos los usuarios (solo ADMIN). */
 export async function listUsers(_req: Request, res: Response) {
   const users = await prisma.user.findMany({
     orderBy: { createdAt: "asc" },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      createdAt: true,
-      _count: { select: { eventsOrganized: true, registrations: true } },
-    },
+    select: userAdminSelect,
   });
   res.json({ users });
 }
@@ -38,14 +41,7 @@ export async function updateUserRole(req: Request, res: Response) {
   const user = await prisma.user.update({
     where: { id },
     data: { role },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      createdAt: true,
-      _count: { select: { eventsOrganized: true, registrations: true } },
-    },
+    select: userAdminSelect,
   });
   res.json({ user });
 }

@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { z } from "zod";
 import { prisma } from "../lib/prisma";
 import { HttpError } from "../middleware/error.middleware";
+import { assertCanManageEvent } from "../utils/permissions";
 
 const checkInSchema = z
   .object({
@@ -12,13 +13,6 @@ const checkInSchema = z
     message: "Se requiere qrToken o registrationId",
   });
 
-function assertCanManageEvent(req: Request, organizerId: string) {
-  const user = req.user!;
-  if (user.role !== "ADMIN" && user.id !== organizerId) {
-    throw new HttpError(403, "No puedes gestionar la asistencia de un evento que no es tuyo");
-  }
-}
-
 /** POST /api/events/:eventId/attendance/check-in — marca asistencia vía QR o manualmente. */
 export async function checkIn(req: Request, res: Response) {
   const { eventId } = req.params;
@@ -26,7 +20,7 @@ export async function checkIn(req: Request, res: Response) {
 
   const event = await prisma.event.findUnique({ where: { id: eventId } });
   if (!event) throw new HttpError(404, "Evento no encontrado");
-  assertCanManageEvent(req, event.organizerId);
+  assertCanManageEvent(req, event.organizationId);
 
   const registration = await prisma.registration.findFirst({
     where: {
@@ -59,7 +53,7 @@ export async function getAttendanceStats(req: Request, res: Response) {
 
   const event = await prisma.event.findUnique({ where: { id: eventId } });
   if (!event) throw new HttpError(404, "Evento no encontrado");
-  assertCanManageEvent(req, event.organizerId);
+  assertCanManageEvent(req, event.organizationId);
 
   const [registered, attended] = await Promise.all([
     prisma.registration.count({ where: { eventId, status: "CONFIRMED" } }),

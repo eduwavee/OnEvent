@@ -3,13 +3,7 @@ import { prisma } from "../lib/prisma";
 import { HttpError } from "../middleware/error.middleware";
 import { generateQrDataUrl } from "../utils/qrcode";
 import { sendNotification } from "../utils/mailer";
-
-function assertCanManageEvent(req: Request, organizerId: string) {
-  const user = req.user!;
-  if (user.role !== "ADMIN" && user.id !== organizerId) {
-    throw new HttpError(403, "No puedes gestionar inscripciones de un evento que no es tuyo");
-  }
-}
+import { assertCanManageEvent } from "../utils/permissions";
 
 /** POST /api/events/:eventId/registrations — el usuario autenticado se inscribe al evento. */
 export async function registerToEvent(req: Request, res: Response) {
@@ -72,7 +66,7 @@ export async function listRegistrations(req: Request, res: Response) {
 
   const event = await prisma.event.findUnique({ where: { id: eventId } });
   if (!event) throw new HttpError(404, "Evento no encontrado");
-  assertCanManageEvent(req, event.organizerId);
+  assertCanManageEvent(req, event.organizationId);
 
   const registrations = await prisma.registration.findMany({
     where: { eventId, status: "CONFIRMED" },

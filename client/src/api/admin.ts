@@ -7,7 +7,8 @@ export interface AdminUser {
   email: string;
   role: Role;
   createdAt: string;
-  _count: { eventsOrganized: number; registrations: number };
+  organization: { id: string; name: string; _count: { events: number } } | null;
+  _count: { registrations: number };
 }
 
 export interface GlobalStats {

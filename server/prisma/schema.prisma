@@ -18,11 +18,27 @@ model User {
   role         String   @default("ATTENDEE") // "ADMIN" | "ORGANIZER" | "ATTENDEE"
   createdAt    DateTime @default(now())
 
-  eventsOrganized Event[]        @relation("EventOrganizer")
-  registrations   Registration[]
-  checkInsMade    Attendance[]   @relation("CheckedInBy")
+  // Solo los usuarios ORGANIZER pertenecen a una organización (asignada al
+  // registrarse). Los eventos cuelgan de la organización, no del usuario.
+  organizationId String?
+  organization   Organization? @relation(fields: [organizationId], references: [id])
+
+  registrations Registration[]
+  checkInsMade  Attendance[]   @relation("CheckedInBy")
 
   @@map("users")
+}
+
+model Organization {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  createdAt   DateTime @default(now())
+
+  members User[]
+  events  Event[]
+
+  @@map("organizations")
 }
 
 model Event {
@@ -35,8 +51,8 @@ model Event {
   capacity    Int
   createdAt   DateTime @default(now())
 
-  organizerId String
-  organizer   User   @relation("EventOrganizer", fields: [organizerId], references: [id], onDelete: Cascade)
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
 
   registrations Registration[]
 

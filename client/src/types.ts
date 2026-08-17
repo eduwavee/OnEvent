@@ -1,10 +1,18 @@
 export type Role = "ADMIN" | "ORGANIZER" | "ATTENDEE";
 
+export interface Organization {
+  id: string;
+  name: string;
+  description?: string | null;
+}
+
 export interface User {
   id: string;
   name: string;
   email: string;
   role: Role;
+  organizationId: string | null;
+  organization: Organization | null;
 }
 
 export interface Event {
@@ -15,8 +23,8 @@ export interface Event {
   startDate: string;
   endDate: string;
   capacity: number;
-  organizerId: string;
-  organizer: { id: string; name: string; email: string };
+  organizationId: string;
+  organization: Organization;
   _count: { registrations: number };
 }
 
