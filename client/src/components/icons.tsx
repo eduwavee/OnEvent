@@ -168,6 +168,43 @@ export function IconX(props: IconProps) {
   );
 }
 
+export function IconDownload(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M10 3v9M6.3 8.7 10 12.4l3.7-3.7" />
+      <path d="M4 15.5h12" />
+    </svg>
+  );
+}
+
+export function IconClock(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <circle cx="10" cy="10" r="7.3" />
+      <path d="M10 5.8V10l3 2" />
+    </svg>
+  );
+}
+
+export function IconShare(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <circle cx="15" cy="5" r="2.3" />
+      <circle cx="5" cy="10" r="2.3" />
+      <circle cx="15" cy="15" r="2.3" />
+      <path d="M7 8.8l6-2.6M7 11.2l6 2.6" />
+    </svg>
+  );
+}
+
+export function IconMenu(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M3.5 5.5h13M3.5 10h13M3.5 14.5h13" />
+    </svg>
+  );
+}
+
 export function IconCompass(props: IconProps) {
   return (
     <svg {...base(props)}>

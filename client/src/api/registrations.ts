@@ -11,7 +11,7 @@ export function cancelMyRegistration(eventId: string) {
 
 export function getMyTicket(eventId: string) {
   return api
-    .get<{ registration: Registration; qrDataUrl: string }>(`/events/${eventId}/registrations/me/ticket`)
+    .get<{ registration: Registration; qrDataUrl: string | null }>(`/events/${eventId}/registrations/me/ticket`)
     .then((r) => r.data);
 }
 

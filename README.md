@@ -56,8 +56,14 @@ organización, no de la persona.
 3. Con una cuenta `ATTENDEE`, inscribirse al evento desde `/eventos` — se genera un
    ticket con QR.
 4. El día del evento, alguien de la organización entra a "Check-in" del evento y marca
-   asistencia escaneando el QR con la cámara, o manualmente desde la lista de inscritos.
-5. Con la cuenta admin (creada por el seed), entrar a "Panel admin" para ver
+   asistencia escaneando el QR con la cámara, o manualmente desde la lista de inscritos
+   (con opción de exportar la lista de inscritos a CSV).
+5. Si un evento se llena, las siguientes inscripciones quedan en **lista de espera** y se
+   promueven automáticamente a confirmadas (con su ticket QR) apenas alguien cancela.
+6. Desde el detalle de un evento, cualquiera puede agregarlo a su calendario (descarga un
+   `.ics`) o compartir el link.
+7. Cualquier usuario puede editar su nombre o cambiar su contraseña desde "Mi perfil".
+8. Con la cuenta admin (creada por el seed), entrar a "Panel admin" para ver
    estadísticas globales y gestionar el rol o eliminar cualquier usuario. No
    existe un registro público de administradores por seguridad: la única forma
    de crear uno es el seed, o que otro admin ascienda a un usuario existente.

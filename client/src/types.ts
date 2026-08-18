@@ -20,6 +20,7 @@ export interface Event {
   title: string;
   description: string;
   location: string;
+  imageUrl?: string | null;
   startDate: string;
   endDate: string;
   capacity: number;
@@ -28,7 +29,7 @@ export interface Event {
   _count: { registrations: number };
 }
 
-export type RegistrationStatus = "CONFIRMED" | "CANCELLED";
+export type RegistrationStatus = "CONFIRMED" | "WAITLISTED" | "CANCELLED";
 
 export interface Attendance {
   id: string;

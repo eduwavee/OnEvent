@@ -2,15 +2,19 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { listEvents } from "../api/events";
 import { getErrorMessage } from "../api/client";
+import { getMyOrganizationEventStats, type EventStat } from "../api/organizations";
+import { AttendanceChart } from "../components/AttendanceChart";
 import { EventCard } from "../components/EventCard";
 import { IconPlus } from "../components/icons";
-import { SkeletonCardGrid } from "../components/Skeleton";
+import { SkeletonBlock, SkeletonCardGrid } from "../components/Skeleton";
 import { StaggerGrid, StaggerItem } from "../components/StaggerGrid";
 import type { Event } from "../types";
 
 export function OrganizerDashboardPage() {
   const [events, setEvents] = useState<Event[]>([]);
+  const [stats, setStats] = useState<EventStat[]>([]);
   const [loading, setLoading] = useState(true);
+  const [statsLoading, setStatsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -18,6 +22,10 @@ export function OrganizerDashboardPage() {
       .then(setEvents)
       .catch((err) => setError(getErrorMessage(err)))
       .finally(() => setLoading(false));
+
+    getMyOrganizationEventStats()
+      .then(setStats)
+      .finally(() => setStatsLoading(false));
   }, []);
 
   return (
@@ -41,6 +49,13 @@ export function OrganizerDashboardPage() {
             </StaggerItem>
           ))}
         </StaggerGrid>
+      )}
+
+      {!loading && events.length > 0 && (
+        <div className="card">
+          <h2 className="org-events-heading">Asistencia por evento</h2>
+          {statsLoading ? <SkeletonBlock height={140} /> : <AttendanceChart stats={stats} />}
+        </div>
       )}
     </div>
   );

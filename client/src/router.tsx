@@ -11,6 +11,7 @@ import { MyRegistrationsPage } from "./pages/MyRegistrationsPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { OrganizationPage } from "./pages/OrganizationPage";
 import { OrganizerDashboardPage } from "./pages/OrganizerDashboardPage";
+import { ProfilePage } from "./pages/ProfilePage";
 import { RegisterPage } from "./pages/RegisterPage";
 
 export function AppRouter() {
@@ -22,6 +23,15 @@ export function AppRouter() {
       <Route path="/registro" element={<RegisterPage />} />
       <Route path="/eventos/:id" element={<EventDetailPage />} />
       <Route path="/organizaciones/:id" element={<OrganizationPage />} />
+
+      <Route
+        path="/perfil"
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        }
+      />
 
       <Route
         path="/mis-inscripciones"

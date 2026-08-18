@@ -24,6 +24,7 @@ export function EventFormPage() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [location, setLocation] = useState("");
+  const [imageUrl, setImageUrl] = useState("");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [capacity, setCapacity] = useState(50);
@@ -38,6 +39,7 @@ export function EventFormPage() {
         setTitle(event.title);
         setDescription(event.description);
         setLocation(event.location);
+        setImageUrl(event.imageUrl || "");
         setStartDate(toInputValue(event.startDate));
         setEndDate(toInputValue(event.endDate));
         setCapacity(event.capacity);
@@ -50,7 +52,7 @@ export function EventFormPage() {
     e.preventDefault();
     setError(null);
     setSaving(true);
-    const payload = { title, description, location, startDate, endDate, capacity: Number(capacity) };
+    const payload = { title, description, location, imageUrl, startDate, endDate, capacity: Number(capacity) };
     try {
       const event = isEditing && id ? await updateEvent(id, payload) : await createEvent(payload);
       toast.success(isEditing ? "Evento actualizado." : "Evento creado.");
@@ -98,6 +100,15 @@ export function EventFormPage() {
                 rows={4}
                 placeholder="Contales a tus asistentes de qué se trata el evento"
                 required
+              />
+            </label>
+            <label>
+              URL de imagen (opcional)
+              <input
+                type="url"
+                value={imageUrl}
+                onChange={(e) => setImageUrl(e.target.value)}
+                placeholder="https://ejemplo.com/foto-del-evento.jpg"
               />
             </label>
           </div>
@@ -156,6 +167,7 @@ export function EventFormPage() {
         <aside className="event-preview-wrap">
           <span className="event-preview-label">Así se ve tu evento</span>
           <div className="card event-card event-preview-card">
+            {imageUrl && <img src={imageUrl} alt="" className="event-card-image" onError={(e) => (e.currentTarget.style.display = "none")} />}
             <h3>{title || "Título del evento"}</h3>
             <p className="meta-row">
               <span className="meta-item">

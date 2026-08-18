@@ -5,6 +5,7 @@ export interface EventInput {
   title: string;
   description: string;
   location: string;
+  imageUrl?: string;
   startDate: string;
   endDate: string;
   capacity: number;

@@ -12,6 +12,14 @@ export function EventCard({ event }: { event: Event }) {
 
   return (
     <Link to={`/eventos/${event.id}`} className="card event-card">
+      {event.imageUrl && (
+        <img
+          src={event.imageUrl}
+          alt=""
+          className="event-card-image"
+          onError={(e) => (e.currentTarget.style.display = "none")}
+        />
+      )}
       <h3>{event.title}</h3>
       <p className="meta-row">
         <span className="meta-item">

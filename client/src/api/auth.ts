@@ -26,3 +26,11 @@ export function register(input: RegisterInput) {
 export function fetchMe() {
   return api.get<{ user: User }>("/auth/me").then((r) => r.data.user);
 }
+
+export function updateProfile(name: string) {
+  return api.patch<{ user: User }>("/auth/me", { name }).then((r) => r.data.user);
+}
+
+export function changePassword(currentPassword: string, newPassword: string) {
+  return api.post("/auth/change-password", { currentPassword, newPassword });
+}

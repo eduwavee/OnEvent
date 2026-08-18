@@ -34,6 +34,15 @@ const loginSchema = z.object({
   password: z.string().min(1, "La contraseña es obligatoria"),
 });
 
+const updateProfileSchema = z.object({
+  name: z.string().min(2, "El nombre debe tener al menos 2 caracteres"),
+});
+
+const changePasswordSchema = z.object({
+  currentPassword: z.string().min(1, "Ingresá tu contraseña actual"),
+  newPassword: z.string().min(6, "La contraseña nueva debe tener al menos 6 caracteres"),
+});
+
 type UserWithOrg = {
   id: string;
   name: string;
@@ -108,4 +117,30 @@ export async function login(req: Request, res: Response) {
 export async function me(req: Request, res: Response) {
   const user = await prisma.user.findUniqueOrThrow({ where: { id: req.user!.id }, include: withOrganization });
   res.json({ user: toPublicUser(user) });
+}
+
+/** PATCH /api/auth/me — el usuario autenticado actualiza su nombre. */
+export async function updateProfile(req: Request, res: Response) {
+  const data = updateProfileSchema.parse(req.body);
+  const user = await prisma.user.update({
+    where: { id: req.user!.id },
+    data: { name: data.name },
+    include: withOrganization,
+  });
+  res.json({ user: toPublicUser(user) });
+}
+
+/** POST /api/auth/change-password — requiere la contraseña actual para setear una nueva. */
+export async function changePassword(req: Request, res: Response) {
+  const data = changePasswordSchema.parse(req.body);
+
+  const user = await prisma.user.findUniqueOrThrow({ where: { id: req.user!.id } });
+  const valid = await bcrypt.compare(data.currentPassword, user.passwordHash);
+  if (!valid) {
+    throw new HttpError(401, "La contraseña actual no es correcta");
+  }
+
+  const passwordHash = await bcrypt.hash(data.newPassword, SALT_ROUNDS);
+  await prisma.user.update({ where: { id: user.id }, data: { passwordHash } });
+  res.status(204).send();
 }
