@@ -8,6 +8,7 @@ import { EventsListPage } from "./pages/EventsListPage";
 import { LandingPage } from "./pages/LandingPage";
 import { LoginPage } from "./pages/LoginPage";
 import { MyRegistrationsPage } from "./pages/MyRegistrationsPage";
+import { NotFoundPage } from "./pages/NotFoundPage";
 import { OrganizationPage } from "./pages/OrganizationPage";
 import { OrganizerDashboardPage } from "./pages/OrganizerDashboardPage";
 import { RegisterPage } from "./pages/RegisterPage";
@@ -71,6 +72,7 @@ export function AppRouter() {
           </ProtectedRoute>
         }
       />
+      <Route path="*" element={<NotFoundPage />} />
     </Routes>
   );
 }

@@ -5,6 +5,7 @@ import { deleteEvent, getEvent } from "../api/events";
 import { cancelMyRegistration, getMyTicket, registerToEvent } from "../api/registrations";
 import { getErrorMessage } from "../api/client";
 import { useAuth } from "../context/AuthContext";
+import { useConfirm } from "../context/ConfirmContext";
 import { useToast } from "../context/ToastContext";
 import type { Event, Registration } from "../types";
 import { IconCalendar, IconEdit, IconPin, IconScan, IconTrash } from "../components/icons";
@@ -16,6 +17,7 @@ export function EventDetailPage() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const toast = useToast();
+  const confirm = useConfirm();
   const navigate = useNavigate();
 
   const [event, setEvent] = useState<Event | null>(null);
@@ -83,7 +85,13 @@ export function EventDetailPage() {
 
   async function handleDelete() {
     if (!id) return;
-    if (!confirm("¿Seguro que quieres eliminar este evento? Esta acción no se puede deshacer.")) return;
+    const ok = await confirm({
+      title: "¿Eliminar este evento?",
+      message: "Se cancelarán todas las inscripciones asociadas. Esta acción no se puede deshacer.",
+      confirmLabel: "Eliminar evento",
+      danger: true,
+    });
+    if (!ok) return;
     setActionLoading(true);
     try {
       await deleteEvent(id);

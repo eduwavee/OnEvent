@@ -150,3 +150,29 @@ export function IconLogIn(props: IconProps) {
     </svg>
   );
 }
+
+export function IconSearch(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <circle cx="8.8" cy="8.8" r="5.3" />
+      <path d="M17 17l-3.6-3.6" />
+    </svg>
+  );
+}
+
+export function IconX(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <path d="M5 5l10 10M15 5 5 15" />
+    </svg>
+  );
+}
+
+export function IconCompass(props: IconProps) {
+  return (
+    <svg {...base(props)}>
+      <circle cx="10" cy="10" r="7.3" />
+      <path d="M12.8 7.2 11.4 11.4l-4.2 1.4 1.4-4.2 4.2-1.4Z" />
+    </svg>
+  );
+}

@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { getErrorMessage } from "../api/client";
 import { useAuth } from "../context/AuthContext";
+import { Wordmark } from "../components/Wordmark";
 
 export function LoginPage() {
   const { login } = useAuth();
@@ -28,6 +29,9 @@ export function LoginPage() {
   return (
     <div className="auth-page">
       <form className="card auth-form" onSubmit={handleSubmit}>
+        <Link to="/" className="auth-wordmark">
+          <Wordmark size={22} />
+        </Link>
         <h2>Iniciar sesión</h2>
         {error && <p className="form-error">{error}</p>}
         <label>
