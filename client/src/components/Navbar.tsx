@@ -1,6 +1,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { IconCalendar, IconLogIn, IconLogOut, IconShield } from "./icons";
+import { IconLogIn, IconLogOut, IconShield } from "./icons";
+import { Wordmark } from "./Wordmark";
 
 export function Navbar() {
   const { user, logout } = useAuth();
@@ -14,8 +15,7 @@ export function Navbar() {
   return (
     <header className="navbar">
       <NavLink to="/" className="navbar-brand">
-        <IconCalendar size={20} />
-        Gestión de Eventos
+        <Wordmark />
       </NavLink>
       <nav className="navbar-links">
         <NavLink to="/" end>

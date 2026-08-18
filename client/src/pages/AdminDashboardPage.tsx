@@ -2,13 +2,19 @@ import { useCallback, useEffect, useState } from "react";
 import * as adminApi from "../api/admin";
 import { getErrorMessage } from "../api/client";
 import { useAuth } from "../context/AuthContext";
+import { useConfirm } from "../context/ConfirmContext";
+import { useToast } from "../context/ToastContext";
+import { AnimatedCounter } from "../components/AnimatedCounter";
 import { IconList, IconShield, IconTrash, IconUsers } from "../components/icons";
+import { SkeletonBlock } from "../components/Skeleton";
 import type { Role } from "../types";
 
 const dateFormatter = new Intl.DateTimeFormat("es-ES", { dateStyle: "medium" });
 
 export function AdminDashboardPage() {
   const { user: me } = useAuth();
+  const confirm = useConfirm();
+  const toast = useToast();
   const [mode, setMode] = useState<"stats" | "users">("stats");
   const [stats, setStats] = useState<adminApi.GlobalStats | null>(null);
   const [users, setUsers] = useState<adminApi.AdminUser[]>([]);
@@ -47,14 +53,21 @@ export function AdminDashboardPage() {
   }
 
   async function handleDelete(id: string, name: string) {
-    if (!confirm(`¿Eliminar la cuenta de ${name}? Esta acción no se puede deshacer.`)) return;
+    const ok = await confirm({
+      title: `¿Eliminar la cuenta de ${name}?`,
+      message: "Esta acción no se puede deshacer.",
+      confirmLabel: "Eliminar cuenta",
+      danger: true,
+    });
+    if (!ok) return;
     setBusyId(id);
     setError(null);
     try {
       await adminApi.deleteUser(id);
       setUsers((prev) => prev.filter((u) => u.id !== id));
+      toast.success(`Cuenta de ${name} eliminada.`);
     } catch (err) {
-      setError(getErrorMessage(err));
+      toast.error(getErrorMessage(err));
     } finally {
       setBusyId(null);
     }
@@ -76,26 +89,32 @@ export function AdminDashboardPage() {
       </div>
 
       {error && <p className="form-error">{error}</p>}
-      {loading && <p className="page-loading">Cargando…</p>}
+      {loading && <SkeletonBlock height={280} />}
 
       {!loading && mode === "stats" && stats && (
         <div className="stat-grid">
           <div className="card stat-tile">
             <span className="stat-tile-label">Usuarios registrados</span>
-            <span className="stat-tile-value">{stats.users}</span>
+            <span className="stat-tile-value">
+              <AnimatedCounter value={stats.users} />
+            </span>
           </div>
           <div className="card stat-tile">
             <span className="stat-tile-label">Eventos creados</span>
-            <span className="stat-tile-value">{stats.events}</span>
+            <span className="stat-tile-value">
+              <AnimatedCounter value={stats.events} />
+            </span>
           </div>
           <div className="card stat-tile">
             <span className="stat-tile-label">Inscripciones activas</span>
-            <span className="stat-tile-value">{stats.registrations}</span>
+            <span className="stat-tile-value">
+              <AnimatedCounter value={stats.registrations} />
+            </span>
           </div>
           <div className="card stat-tile">
             <span className="stat-tile-label">Asistencias registradas</span>
             <span className="stat-tile-value">
-              {stats.attendance}
+              <AnimatedCounter value={stats.attendance} />
               {stats.registrations > 0 && <small> / {stats.registrations}</small>}
             </span>
             {stats.registrations > 0 && (

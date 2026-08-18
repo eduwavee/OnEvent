@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { getErrorMessage } from "../api/client";
 import { useAuth } from "../context/AuthContext";
+import { Wordmark } from "../components/Wordmark";
 import type { Role } from "../types";
 
 export function RegisterPage() {
@@ -43,6 +44,9 @@ export function RegisterPage() {
   return (
     <div className="auth-page">
       <form className="card auth-form" onSubmit={handleSubmit}>
+        <Link to="/" className="auth-wordmark">
+          <Wordmark size={22} />
+        </Link>
         <h2>Crear cuenta</h2>
         {error && <p className="form-error">{error}</p>}
         <label>
