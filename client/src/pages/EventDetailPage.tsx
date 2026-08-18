@@ -7,8 +7,9 @@ import { getErrorMessage } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import { useConfirm } from "../context/ConfirmContext";
 import { useToast } from "../context/ToastContext";
+import { downloadEventIcs } from "../lib/ics";
 import type { Event, Registration } from "../types";
-import { IconCalendar, IconEdit, IconPin, IconScan, IconTrash } from "../components/icons";
+import { IconCalendar, IconEdit, IconPin, IconScan, IconShare, IconTrash } from "../components/icons";
 import { SkeletonBlock } from "../components/Skeleton";
 
 const dateFormatter = new Intl.DateTimeFormat("es-ES", { dateStyle: "full", timeStyle: "short" });
@@ -58,8 +59,12 @@ export function EventDetailPage() {
     setActionLoading(true);
     setError(null);
     try {
-      await registerToEvent(id);
-      toast.success("Te inscribiste correctamente. Ya tenés tu ticket con QR.");
+      const registration = await registerToEvent(id);
+      toast.success(
+        registration.status === "WAITLISTED"
+          ? "Te anotamos en la lista de espera. Te avisamos si se libera un cupo."
+          : "Te inscribiste correctamente. Ya tenés tu ticket con QR."
+      );
       await load();
     } catch (err) {
       toast.error(getErrorMessage(err));
@@ -103,6 +108,24 @@ export function EventDetailPage() {
     }
   }
 
+  async function handleShare() {
+    const url = window.location.href;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: event?.title, url });
+      } catch {
+        // el usuario cerró el selector de compartir: no es un error
+      }
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      toast.success("Link copiado al portapapeles.");
+    } catch {
+      toast.error("No se pudo copiar el link. Copialo manualmente: " + url);
+    }
+  }
+
   if (loading) {
     return (
       <div className="page">
@@ -116,9 +139,11 @@ export function EventDetailPage() {
 
   const isOwner = user && (user.organizationId === event.organizationId || user.role === "ADMIN");
   const spotsLeft = event.capacity - event._count.registrations;
+  const isFull = spotsLeft <= 0;
 
   return (
     <div className="page event-detail">
+      {event.imageUrl && <img src={event.imageUrl} alt="" className="event-detail-banner" />}
       <h1>{event.title}</h1>
       <p className="meta-row">
         <span className="meta-item">
@@ -136,7 +161,7 @@ export function EventDetailPage() {
         </Link>
       </p>
       <p className="event-detail-desc">{event.description}</p>
-      <p className={spotsLeft <= 0 ? "event-card-spots full" : "event-card-spots"}>
+      <p className={isFull ? "event-card-spots full" : "event-card-spots"}>
         {spotsLeft > 0 ? `${spotsLeft} cupos disponibles de ${event.capacity}` : "Sin cupos disponibles"}
       </p>
 
@@ -146,19 +171,32 @@ export function EventDetailPage() {
         {user?.role === "ATTENDEE" &&
           (myRegistration ? (
             <>
-              <span className="badge badge-success">Ya estás inscrito</span>
-              <Link to="/mis-inscripciones" className="btn btn-ghost">
-                Ver mi ticket
-              </Link>
+              {myRegistration.status === "WAITLISTED" ? (
+                <span className="badge badge-pending">Estás en lista de espera</span>
+              ) : (
+                <>
+                  <span className="badge badge-success">Ya estás inscrito</span>
+                  <Link to="/mis-inscripciones" className="btn btn-ghost">
+                    Ver mi ticket
+                  </Link>
+                </>
+              )}
               <button className="btn btn-danger" disabled={actionLoading} onClick={handleCancel}>
                 Cancelar inscripción
               </button>
             </>
           ) : (
-            <button className="btn btn-primary" disabled={actionLoading || spotsLeft <= 0} onClick={handleRegister}>
-              {actionLoading ? "Inscribiendo…" : "Inscribirme"}
+            <button className="btn btn-primary" disabled={actionLoading} onClick={handleRegister}>
+              {actionLoading ? "Un momento…" : isFull ? "Anotarme en lista de espera" : "Inscribirme"}
             </button>
           ))}
+
+        <button className="btn btn-ghost" onClick={() => downloadEventIcs(event)}>
+          <IconCalendar size={15} /> Agregar al calendario
+        </button>
+        <button className="btn btn-ghost" onClick={handleShare}>
+          <IconShare size={15} /> Compartir
+        </button>
 
         {isOwner && (
           <>

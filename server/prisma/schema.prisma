@@ -46,6 +46,7 @@ model Event {
   title       String
   description String
   location    String
+  imageUrl    String?
   startDate   DateTime
   endDate     DateTime
   capacity    Int
@@ -62,7 +63,7 @@ model Event {
 model Registration {
   id           String   @id @default(cuid())
   qrToken      String   @unique @default(cuid())
-  status       String   @default("CONFIRMED") // "CONFIRMED" | "CANCELLED"
+  status       String   @default("CONFIRMED") // "CONFIRMED" | "WAITLISTED" | "CANCELLED"
   registeredAt DateTime @default(now())
 
   eventId String

@@ -6,8 +6,9 @@ import { getEvent } from "../api/events";
 import { listEventRegistrations } from "../api/registrations";
 import { getErrorMessage } from "../api/client";
 import { AttendeeList } from "../components/AttendeeList";
-import { IconCheckCircle, IconList, IconScan } from "../components/icons";
+import { IconCheckCircle, IconDownload, IconList, IconScan } from "../components/icons";
 import { SkeletonBlock } from "../components/Skeleton";
+import { downloadCsv } from "../lib/csv";
 import type { Event, Registration } from "../types";
 
 // html5-qrcode es pesado (~200KB); solo se carga si se abre la pestaña de escaneo.
@@ -64,9 +65,25 @@ export function CheckInPage() {
     );
   }
 
+  function handleExportCsv() {
+    downloadCsv(
+      `inscritos-${event!.title}`,
+      registrations.map((r) => ({
+        Nombre: r.user?.name || "",
+        Email: r.user?.email || "",
+        Estado: r.attendance ? "Asistió" : "Pendiente",
+      }))
+    );
+  }
+
   return (
     <div className="page">
-      <h1>Check-in: {event.title}</h1>
+      <div className="page-header">
+        <h1>Check-in: {event.title}</h1>
+        <button className="btn btn-ghost btn-sm" onClick={handleExportCsv} disabled={registrations.length === 0}>
+          <IconDownload size={14} /> Exportar CSV
+        </button>
+      </div>
       {stats && (
         <div className="stat-grid">
           <div className="card stat-tile">

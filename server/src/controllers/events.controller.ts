@@ -8,6 +8,10 @@ const baseEventSchema = z.object({
   title: z.string().min(3, "El título debe tener al menos 3 caracteres"),
   description: z.string().min(1, "La descripción es obligatoria"),
   location: z.string().min(1, "La ubicación es obligatoria"),
+  imageUrl: z.preprocess(
+    (v) => (v === "" ? undefined : v),
+    z.string().url("La URL de la imagen no es válida").optional()
+  ),
   startDate: z.coerce.date(),
   endDate: z.coerce.date(),
   capacity: z.coerce.number().int().positive("La capacidad debe ser mayor a 0"),

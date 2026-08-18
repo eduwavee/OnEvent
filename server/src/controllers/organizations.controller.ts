@@ -21,3 +21,47 @@ export async function getOrganization(req: Request, res: Response) {
 
   res.json({ organization, events });
 }
+
+/**
+ * GET /api/organizations/me/events-stats — inscriptos confirmados vs. asistencias por cada
+ * evento de la organización del usuario autenticado. Para el gráfico de "Mis eventos".
+ */
+export async function getMyOrganizationEventStats(req: Request, res: Response) {
+  const organizationId = req.user!.organizationId;
+  if (!organizationId) {
+    return res.json({ stats: [] });
+  }
+
+  const events = await prisma.event.findMany({
+    where: { organizationId },
+    orderBy: { startDate: "asc" },
+    select: {
+      id: true,
+      title: true,
+      capacity: true,
+      _count: { select: { registrations: { where: { status: "CONFIRMED" } } } },
+    },
+  });
+
+  const eventIds = events.map((e) => e.id);
+  const attendances = await prisma.attendance.findMany({
+    where: { registration: { eventId: { in: eventIds } } },
+    select: { registration: { select: { eventId: true } } },
+  });
+
+  const attendedByEvent = new Map<string, number>();
+  for (const a of attendances) {
+    const id = a.registration.eventId;
+    attendedByEvent.set(id, (attendedByEvent.get(id) || 0) + 1);
+  }
+
+  const stats = events.map((e) => ({
+    eventId: e.id,
+    title: e.title,
+    capacity: e.capacity,
+    registered: e._count.registrations,
+    attended: attendedByEvent.get(e.id) || 0,
+  }));
+
+  res.json({ stats });
+}

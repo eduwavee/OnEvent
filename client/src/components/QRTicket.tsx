@@ -1,13 +1,14 @@
 import type { Event } from "../types";
-import { IconCalendar, IconCheckCircle, IconPin } from "./icons";
+import { IconCalendar, IconCheckCircle, IconClock, IconPin } from "./icons";
 
 interface Props {
   event: Event;
-  qrDataUrl: string;
+  qrDataUrl: string | null;
   checkedIn: boolean;
+  waitlisted?: boolean;
 }
 
-export function QRTicket({ event, qrDataUrl, checkedIn }: Props) {
+export function QRTicket({ event, qrDataUrl, checkedIn, waitlisted }: Props) {
   return (
     <div className="card qr-ticket">
       <div className="qr-ticket-info">
@@ -20,17 +21,25 @@ export function QRTicket({ event, qrDataUrl, checkedIn }: Props) {
             <IconCalendar size={14} /> {new Date(event.startDate).toLocaleString("es-ES")}
           </span>
         </p>
-        <span className={`badge ${checkedIn ? "badge-success" : "badge-pending"}`}>
-          {checkedIn ? (
-            <>
-              <IconCheckCircle size={13} /> Asistencia registrada
-            </>
-          ) : (
-            "Presenta este QR en el ingreso"
-          )}
-        </span>
+        {waitlisted ? (
+          <span className="badge badge-pending">
+            <IconClock size={13} /> En lista de espera — te avisamos si se libera un cupo
+          </span>
+        ) : (
+          <span className={`badge ${checkedIn ? "badge-success" : "badge-pending"}`}>
+            {checkedIn ? (
+              <>
+                <IconCheckCircle size={13} /> Asistencia registrada
+              </>
+            ) : (
+              "Presenta este QR en el ingreso"
+            )}
+          </span>
+        )}
       </div>
-      <img src={qrDataUrl} alt={`Código QR de tu ticket para ${event.title}`} className="qr-ticket-img" />
+      {qrDataUrl && (
+        <img src={qrDataUrl} alt={`Código QR de tu ticket para ${event.title}`} className="qr-ticket-img" />
+      )}
     </div>
   );
 }

@@ -221,6 +221,9 @@ h1 {
 --------------------------------------------------------------------- */
 
 .navbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   display: flex;
   align-items: center;
   gap: 28px;
@@ -228,9 +231,27 @@ h1 {
   background: rgba(10, 14, 23, 0.85);
   backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  z-index: 10;
+}
+
+.navbar-mobile-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: var(--radius-sm);
+  padding: 6px;
+  cursor: pointer;
+  margin-left: auto;
+}
+
+.navbar-mobile-toggle:hover {
+  background: var(--surface-hover);
+}
+
+.navbar-mobile-only-link {
+  display: none;
 }
 
 .navbar-brand {
@@ -350,6 +371,12 @@ h1 {
   gap: 6px;
   font-size: 0.85rem;
   color: var(--text-muted);
+  text-decoration: none;
+  transition: color 0.15s var(--ease);
+}
+
+.navbar-username:hover {
+  color: var(--text);
 }
 
 .role-tag {
@@ -469,6 +496,16 @@ h1 {
   font-size: 1.05rem;
 }
 
+.event-card-image {
+  width: calc(100% + 44px);
+  margin: -22px -22px 4px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: var(--radius) var(--radius) 0 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-raised);
+}
+
 .meta-row {
   display: flex;
   align-items: center;
@@ -548,6 +585,14 @@ h1 {
 }
 .inline-link:hover {
   text-decoration: underline;
+}
+
+.event-detail-banner {
+  width: 100%;
+  max-height: 340px;
+  object-fit: cover;
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border);
 }
 
 .event-detail-desc {
@@ -1173,6 +1218,123 @@ select:focus {
 }
 
 /* ---------------------------------------------------------------------
+   Gráfico de asistencia (Mis eventos)
+--------------------------------------------------------------------- */
+
+.attendance-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.attendance-chart-legend {
+  display: flex;
+  gap: 20px;
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.legend-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+}
+
+.legend-swatch-registered {
+  background: var(--accent-soft-border);
+}
+
+.legend-swatch-attended {
+  background: var(--accent);
+}
+
+.attendance-chart-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.attendance-chart-row-label {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.attendance-chart-row-title {
+  font-size: 0.88rem;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attendance-chart-row-figures {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  color: var(--text-faint);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.attendance-chart-track {
+  position: relative;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--surface-raised);
+  overflow: hidden;
+}
+
+.attendance-chart-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  border-radius: 999px;
+}
+
+.attendance-chart-fill-registered {
+  background: var(--accent-soft-border);
+}
+
+.attendance-chart-fill-attended {
+  background: var(--accent);
+  box-shadow: 0 0 8px rgba(61, 124, 255, 0.5);
+}
+
+/* ---------------------------------------------------------------------
+   Mi perfil
+--------------------------------------------------------------------- */
+
+.profile-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.profile-form-submit {
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+/* ---------------------------------------------------------------------
    Perfil de organización
 --------------------------------------------------------------------- */
 
@@ -1475,17 +1637,49 @@ select:focus {
 
 @media (max-width: 720px) {
   .navbar {
-    flex-wrap: wrap;
-    row-gap: 10px;
     padding: 12px 16px;
   }
 
+  .navbar-mobile-toggle {
+    display: inline-flex;
+  }
+
   .navbar-links {
-    order: 3;
-    width: 100%;
-    justify-content: center;
-    gap: 16px;
-    flex: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 20;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    box-shadow: 0 12px 24px -12px rgba(0, 0, 0, 0.5);
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    padding: 0 16px;
+    transition: max-height 0.25s var(--ease), opacity 0.2s var(--ease), padding 0.25s var(--ease);
+  }
+
+  .navbar-links.open {
+    max-height: 360px;
+    opacity: 1;
+    padding: 8px 16px 16px;
+  }
+
+  .navbar-links a {
+    padding: 11px 4px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .navbar-links a::after {
+    display: none;
+  }
+
+  .navbar-mobile-only-link {
+    display: block;
   }
 
   .navbar-username {

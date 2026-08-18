@@ -7,7 +7,7 @@ import type { Event, Registration } from "../types";
 
 interface Ticket {
   registration: Registration;
-  qrDataUrl: string;
+  qrDataUrl: string | null;
 }
 
 export function MyRegistrationsPage() {
@@ -52,6 +52,7 @@ export function MyRegistrationsPage() {
             event={registration.event as Event}
             qrDataUrl={qrDataUrl}
             checkedIn={Boolean(registration.attendance)}
+            waitlisted={registration.status === "WAITLISTED"}
           />
         ))}
       </div>
